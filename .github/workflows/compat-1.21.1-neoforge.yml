@@ -50,7 +50,7 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          ./gradlew build --stacktrace --info 2>&1 | tee build.log
+          ./gradlew :1.21.1-neoforge:build --stacktrace --info 2>&1 | tee build.log
       - name: Persist successful 3.2.2 source port
         if: success()
         shell: bash
@@ -65,40 +65,13 @@ jobs:
           git push
       - name: Show built jars
         if: always()
-        run: find . -path '*/build/libs/*.jar' -type f -print
+        run: find versions/1.21.1-neoforge/build/libs -type f -name '*.jar' -print 2>/dev/null || true
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: BuildingWands-1.21.1-neoforge-diagnostics
+          name: BuildingWands-3.2.2-mc1.21.1-neoforge-21.1.247
           path: |
             build.log
-            **/build/libs/*.jar
-            !**/*-sources.jar
+            versions/1.21.1-neoforge/build/libs/*.jar
+            !versions/1.21.1-neoforge/build/libs/*-sources.jar
           if-no-files-found: warn
-
-  recover-3-2-2-keybinding-fix:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: '21'
-      - name: Compare published 3.2.1 and 3.2.2 WandsModClient bytecode
-        shell: bash
-        run: |
-          set -euo pipefail
-          curl -fL 'https://edge.forgecdn.net/files/8605/424/BuildingWands_3.2.1_release_neoforge_26.2.jar' -o 3.2.1.jar
-          curl -fL 'https://edge.forgecdn.net/files/8607/495/BuildingWands_3.2.2_release_neoforge_26.2.jar' -o 3.2.2.jar
-          javap -classpath 3.2.1.jar -c -p net.nicguzzo.wands.client.WandsModClient > 3.2.1.txt
-          javap -classpath 3.2.2.jar -c -p net.nicguzzo.wands.client.WandsModClient > 3.2.2.txt
-          diff -u 3.2.1.txt 3.2.2.txt > keybinding.diff || true
-          cat keybinding.diff
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: BuildingWands-3.2.2-keybinding-diff
-          path: |
-            3.2.1.txt
-            3.2.2.txt
-            keybinding.diff
-          if-no-files-found: error
