@@ -42,6 +42,18 @@ public class WandScreen extends Screen {
     private static final int BLACK = 0xFF111111;
     private static final int WHITE = 0xFFF4F4F4;
 
+    // Kept public because the existing HUD/mode-selector/widget classes share
+    // these WandScreen palette/layout constants.
+    public static final int COLOR_PANEL_BACKGROUND = DARK;
+    public static final int COLOR_BTN_HOVER = DARK_HOVER;
+    public static final int COLOR_BTN_SELECTED = SELECTED;
+    public static final int COLOR_BTN_DISABLED = DISABLED;
+    public static final int COLOR_WDGT_HOVER = DARK_HOVER;
+    public static final int COLOR_TEXT_PRIMARY = WHITE;
+    public static final int COLOR_WDGT_LABEL = 0xFFAAAAAA;
+    public static final int COLOR_TAB_DIVIDER = 0xFF444444;
+    public static final int SCREEN_MARGIN = 4;
+
     private static final int LEFT_X = 8;
     private static final int MID_X = 78;
     private static final int RIGHT_X = 148;
