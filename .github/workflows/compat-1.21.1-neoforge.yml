@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -17,13 +17,52 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '25'
       - uses: gradle/actions/setup-gradle@v4
+      - name: Apply published 3.2.2 keybinding hotfix and version
+        shell: python
+        run: |
+          from pathlib import Path
+
+          client = Path("src/main/java/net/nicguzzo/wands/client/WandsModClient.java")
+          text = client.read_text()
+          marker = '    static final String k = "key.wands.";\n\n    public static void initialize() {\n'
+          replacement = (
+              '    static final String k = "key.wands.";\n'
+              '    public static boolean initialized = false;\n\n'
+              '    public static void initialize() {\n'
+              '        if (initialized) return;\n'
+              '        initialized = true;\n\n'
+          )
+          if 'public static boolean initialized' not in text:
+              if marker not in text:
+                  raise SystemExit("Could not locate WandsModClient initialize marker")
+              text = text.replace(marker, replacement, 1)
+              client.write_text(text)
+
+          gradle = Path("build.gradle.kts")
+          build = gradle.read_text()
+          if 'val modVersionStr = "3.2.1"' in build:
+              gradle.write_text(build.replace('val modVersionStr = "3.2.1"', 'val modVersionStr = "3.2.2"', 1))
+          elif 'val modVersionStr = "3.2.2"' not in build:
+              raise SystemExit("Unexpected modVersionStr")
       - name: Build 1.21.1 NeoForge target
         shell: bash
         run: |
           set -o pipefail
           ./gradlew build --stacktrace --info 2>&1 | tee build.log
+      - name: Persist successful 3.2.2 source port
+        if: success()
+        shell: bash
+        run: |
+          if git diff --quiet -- build.gradle.kts src/main/java/net/nicguzzo/wands/client/WandsModClient.java; then
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add build.gradle.kts src/main/java/net/nicguzzo/wands/client/WandsModClient.java
+          git commit -m 'Port BuildingWands 3.2.2 keybinding fix to 1.21.1'
+          git push
       - name: Show built jars
         if: always()
         run: find . -path '*/build/libs/*.jar' -type f -print
