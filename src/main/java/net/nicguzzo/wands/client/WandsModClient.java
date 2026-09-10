@@ -78,8 +78,12 @@ public class WandsModClient {
     /*static final String tab = "key.categories.wands";
     *///?}
     static final String k = "key.wands.";
+    public static boolean initialized = false;
 
     public static void initialize() {
+        if (initialized) return;
+        initialized = true;
+
 
         wand_menu_km = Compat.newKeyMapping(k + "wand_menu", wand_menu_key, tab);
         keys.put(wand_menu_km, WandsMod.WandKeys.MENU);
