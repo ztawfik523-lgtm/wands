@@ -68,7 +68,7 @@
       { "project_id": 404468, "slug": "ftb-teams-forge" },
       { "project_id": 404465, "slug": "ftb-library-forge" }
     ],
-    "server_installer_url": "https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.219/neoforge-21.1.219-installer.jar",
+    "server_installer_url": "https://maven.neoforged.net/releases/net/neoforged/neoforge/21.1.247/neoforge-21.1.247-installer.jar",
     "java_key": "java_21"
   },
   {

@@ -1,0 +1,47 @@
+name: Build MC 1.21.1 NeoForge
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'build.gradle.kts'
+      - 'settings.gradle.kts'
+      - 'src/**'
+      - 'versions/1.21.1-neoforge/**'
+      - '.github/workflows/build-mc1.21.1-neoforge.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 25 for Modstitch
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Build Building Wands 3.2.2 for NeoForge 21.1.247
+        run: |
+          chmod +x ./gradlew
+          ./gradlew \
+            -Dorg.gradle.java.home="$JAVA_HOME" \
+            -Dorg.gradle.jvmargs="-Xmx4G -XX:+UseG1GC" \
+            :1.21.1-neoforge:build \
+            -Pfabric.loom.disable_file_lock=true
+
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: BuildingWands-3.2.2-MC1.21.1-NeoForge-21.1.247
+          path: |
+            versions/1.21.1-neoforge/build/libs/*.jar
+            !versions/1.21.1-neoforge/build/libs/*-sources.jar
+            !versions/1.21.1-neoforge/build/libs/*-dev*.jar
+          if-no-files-found: error

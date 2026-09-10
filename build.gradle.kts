@@ -10,7 +10,7 @@ fun prop(name: String, consumer: (prop: String) -> Unit) {
 }
 
 val minecraft = property("deps.minecraft") as String
-val modVersionStr = "3.2.1"
+val modVersionStr = "3.2.2"
 val releaseChannel = project.findProperty("release_channel") as? String ?: "release"
 
 sourceSets {
